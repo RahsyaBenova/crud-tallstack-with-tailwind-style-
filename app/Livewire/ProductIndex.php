@@ -5,7 +5,7 @@ namespace App\Livewire;
 use App\Models\Product;
 use Livewire\Component;
 use Livewire\WithPagination;
-
+use Illuminate\Support\Facades\Storage;
 class ProductIndex extends Component
 {
     use WithPagination;
@@ -29,22 +29,36 @@ class ProductIndex extends Component
     {
         $this->resetPage();
     }
-    public function deleteProduct($productId)
-    {
-        $product = Product::findOrFail($productId);
-        // Detach categories from pivot table
-        $product->categories()->detach();
-        $product->delete();
-        session()->flash('success', 'Product deleted successfully');
-        $message = 'Product Deleted Successfully';
-        $this->dispatch('swal', [
-            'title' => 'Success!',
-            'text' => $message,
-            'icon' => 'success',
-        ]);
+   
 
+public function deleteProduct($productId)
+{
+    $product = Product::findOrFail($productId);
 
+    // Detach categories from pivot table
+    $product->categories()->detach();
+
+    // Delete the image from storage
+    if ($product->image && Storage::exists('public/' . $product->image)) {
+        Storage::delete('public/' . $product->image);
     }
+    
+
+    // Delete the product from the database
+    $product->delete();
+
+    // Flash success message
+    session()->flash('success', 'Product deleted successfully');
+
+    // Show SweetAlert notification
+    $message = 'Product Deleted Successfully';
+    $this->dispatch('swal', [
+        'title' => 'Success!',
+        'text' => $message,
+        'icon' => 'success',
+    ]);
+}
+
     public function render()
     {
         $products = Product::with(['brand', 'categories'])

@@ -9,7 +9,7 @@ class Transaksi extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tanggal', 'total_harga', 'status'];
+    protected $fillable = ['tanggal', 'total_harga', 'status', 'uang_dibayar', 'kembalian'];
     
 
     public function detailTransaksis()

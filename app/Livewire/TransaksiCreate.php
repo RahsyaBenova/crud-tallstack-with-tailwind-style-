@@ -11,11 +11,18 @@ class TransaksiCreate extends Component
 {
     public $tanggal, $total_harga = 0;
     public $products, $cart = [];
+    public $search = ''; // Tambahkan properti search
 
     public function mount()
     {
         // Load all products
         $this->products = Product::all();
+    }
+
+    public function updatedSearch()
+    {
+        // Update produk yang ditampilkan sesuai dengan pencarian
+        $this->products = Product::where('name', 'like', '%' . $this->search . '%')->get();
     }
 
     public function addProductToCart($productId)
@@ -72,12 +79,14 @@ class TransaksiCreate extends Component
                 'harga' => $item['price'],
             ]);
         }
+
         session()->flash('success', 'Transaksi created successfully');
         $this->dispatch('swal', [
             'title' => 'Success!',
             'text' => 'Transaksi created successfully.',
             'icon' => 'success',
         ]);
+
         return redirect()->route('transaksi.index');
     }
 
